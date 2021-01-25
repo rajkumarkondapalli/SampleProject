@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block nav_btn1 %}
+<form method="post" action="{% url "user_logout" %}">
+{% csrf_token %}
+<button type="submit" class="btn btn-outline-primary ml-2">
+  Logout
+</button>
+</form>
+{% endblock nav_btn1 %}
+
+{% block css %}
+
+.userImage
+{
+width:200px;
+height:200px;
+border-radius:50%;
+}
+
+.pst{
+width:350px;
+height:200px;
+margin-bottom:30px;
+}
+
+.info
+{
+padding-top:2%;
+padding-left:3%;
+}
+
+hr
+{
+border-top: 2px solid #000000;
+}
+}
+{% endblock css %}
+{% load static %}
+
+{% block body %}
+   <div class="container my-4">
+    <div class="media">
+        <img src="{% static 'image/userimage.png' %}" class="align-self-start mr-3 userImage" alt="...">
+        <div class="media-body info">
+            <h4 class="mt-0">{{request.user}}
+
+            </h4>
+            <p>Posts : {{p1}}</p>
+            <p>Likes : {{l1}}</p>
+            <p>Dislikes : {{d1}}</p>
+        </div>
+    </div>
+   <hr>
+   {% for i in data %}
+<div class='container my-2 post_div shadow-lg p-1 mb-5 bg-white rounded' id="{{ i.id }}">
+  <div class="card">
+    <h5 class="card-header">
+      <a href="#" style="color:black;">{{i.user}}</a>
+      <small>{{i.date.date}}</small>
+    </h5>
+    <div class="card-body">
+      <h6 class="card-text">{{i.caption}}</h6>
+      <p class="card-text">{{i.content}}</p>
+
+      <hr size='30px'>
+
+     <button class="btn btn-light mr-3 like" style="color:forestgreen;">
+
+        Likes:{{i.likes.count  }}
+
+      </button>
+
+    <button class="btn btn-light mr-3 dislike" style="color: red" >
+
+            Dislikes:{{ i.dislikes.count }}
+
+      </button>
+    <div   class="btn" >
+     <form action="{% url 'usercmnt' %}" method="post" >
+         {% csrf_token %}
+       <input type="hidden" name="p_id" value="{{ i.id }}">
+         <button type="submit"  class="btn btn-info mx-4"   >
+       Comments
+             </button>
+     </form>
+    </div>
+
+      {% if request.user == i.user %}
+      <a class="btn btn-danger ml-4 delete" href="{% url 'deletepost' i.id %}" id="{{ i.id }}">Delete</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+       </div>
+       {% for x in cmnt %}
+       <div class="card">
+  <div class="card-header">
+    {{ x.user }}
+  </div>
+  <div class="card-body">
+    <blockquote class="blockquote mb-0">
+      <p>{{ x.comment }}</p>
+    </blockquote>
+  </div>
+</div>
+           {% endfor %}
+{% endfor %}
+{% endblock %}
+
+{% block modals %}
+
+<div class="modal fade" id="cmntModal" tabindex="-1" aria-labelledby="cmntModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cmntModalLabel"></h5>
+      </div>
+      <div class="modal-body">
+
+        <input style="border: none" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" name="cmntid" id="cmntid"   placeholder="Comment here..." class='ml-4'>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Done</button>
+
+      </div>
+
+
+    </div>
+
+  </div>
+</div>
+    </form>
+{% endblock %}
+{% block js %}
+<script>
+         $('#cmntModal').on('show.bs.modal',function (e){
+             var cmntId = $(e.relatedTarget).data('cmntid');
+             $(e.currentTarget).find('p[id="raj"]').val(cmntId);
+
+
+         })
+</script>
+    <script src="{% static 'js/delete.js' %}"></script>
+{% endblock %}

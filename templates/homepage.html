@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block nav_btn1 %}
+<!-- Button trigger modal -->
+    <button type="button" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#LoginModal"
+            xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+  Login
+</button>
+    <a href="{% url 'register' %}">
+        <button type="button" class="btn btn-outline-primary ml-2">Signup</button> </a>
+    <button type="button" class="btn btn-outline-primary ml-4" data-toggle="modal" data-target="#PostModal">
+    Post
+</button>
+    {% if request.user %}
+   <a href="{% url 'userpage' %}">
+        <button type="button" class="btn btn-outline-primary ml-4">UserProfile</button> </a>
+    {% endif %}
+{% endblock nav_btn1 %}
+
+{% block body %}
+
+<div id="stories" class="storiesWrapper"></div>
+
+{% for i in posts %}
+<div class='container my-2 post_div shadow-lg p-1 mb-5 bg-white rounded' id="{{ i.id }}">
+  <div class="card">
+    <h5 class="card-header">
+      <a href="#" style="color:black;">{{i.user}}</a>
+      <small>{{i.date.date}}</small>
+    </h5>
+    <div class="card-body">
+      <h6 class="card-text">{{i.caption}}</h6>
+      <p class="card-text">{{i.content}}</p>
+
+      <hr size='30px'>
+
+     <button class="btn btn-light mr-3 like" style="color:forestgreen;">
+         <a href="{% url 'like_post' %}post_id={{ i.id }}">
+
+        Like:{{ i.likes.count }}
+         </a>
+      </button>
+
+    <button class="btn btn-light mr-3 dislike" id="{{ i.id }}">
+
+            <a href="{% url 'dislike_post' %}?post_id={{ i.id }}" style="color:red;">
+                Dislike:{{ i.dislikes.count }}
+            </a>
+      </button>
+
+
+
+      <button type="button"  class="btn btn-info mx-4" data-toggle="modal" data-cmntid="{{ i.id }}" data-target="#cmntModal"> Reply </button>
+      {% if request.user == i.user %}
+      <a class="btn btn-danger ml-4 delete" href="{% url 'deletepost' i.id %}" id="{{ i.id }}">Delete</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+{% endblock body %}
+
+{% block modals %}
+
+<!-- Modal -->
+<div class="modal fade" id="PostModal" tabindex="-1" role="dialog" aria-labelledby="PostModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="PostModalLabel">Post Here</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="{% url 'post' %}" method="POST"  enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="title">Title : </label>
+          <input type="text" name="title" id="title" >
+          <br><br>
+          <label for="content">Content : </label>
+          <br>
+          <textarea name="content" id="content" cols="45" rows="10" placeholder="Text here..." class='ml-4'></textarea>
+          <hr size='30'>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Post</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+    <form action="{% url 'comment' %}" method="post">
+    {% csrf_token %}
+<div class="modal fade" id="cmntModal" tabindex="-1" aria-labelledby="cmntModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cmntModalLabel">{{ request.user }}</h5>
+      </div>
+      <div class="modal-body">
+
+        <input style="border: none" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" name="reply" id="reply"   placeholder="Comment here..." class='ml-4'>
+          <input type="hidden" name="cmntid">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Done</button>
+
+      </div>
+
+
+    </div>
+
+  </div>
+</div>
+    </form>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="LoginModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="LoginModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="LoginModalLabel">Login</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method='post' action="{% url "user_login" %}">
+        {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter your Username" required name='username'>
+
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" placeholder="Enter Your Password" name='password' required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock modals %}
+
+{% block js %}
+
+<script>
+         $('#cmntModal').on('show.bs.modal',function (e){
+             var cmntId = $(e.relatedTarget).data('cmntid');
+             $(e.currentTarget).find('input[name="cmntid"]').val(cmntId);
+
+
+         })
+</script>
+
+<script src="{% static 'js/delete.js' %}"></script>
+{% endblock js %}
+

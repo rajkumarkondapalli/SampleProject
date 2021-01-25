@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block nav_btn1 %}
+     <a href="{% url 'userpage' %}">
+        <button type="button" class="btn btn-outline-primary ml-4">UserProfile</button> </a>
+{% endblock %}
+{% block css %}
+    hr
+{
+border-top: 2px solid #000000;
+}
+{%  endblock %}
+{% block body %}
+    <div class='container my-2 post_div shadow-lg p-1 mb-5 bg-white rounded'>
+  <div class="card">
+    <h5 class="card-header">
+      <a href="#" style="color:black;">{{pst.user}}</a>
+      <small>{{pst.date.date}}</small>
+    </h5>
+    <div class="card-body">
+      <h6 class="card-text">{{pst.caption}}</h6>
+      <p class="card-text">{{pst.content}}</p>
+    </div>
+  </div>
+    </div>
+
+
+    <div class='container my-2 post_div shadow-lg p-1 mb-5 bg-white rounded'>
+  <div class="card">
+    <h5 class="card-header">
+      <a href="#" style="color:black;">Comments</a>
+    </h5>
+  <hr>
+      {% for x in cmnt %}
+    <div class="card-body">
+      <h6 class="card-text">{{x.user}}</h6>
+      <p class="card-text">{{x.comment}}</p>
+    </div>
+          <hr>
+      {% endfor %}
+  </div>
+    </div>
+
+
+
+
+
+
+{% endblock %}
